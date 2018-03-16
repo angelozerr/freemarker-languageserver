@@ -11,10 +11,11 @@ and can be used with any editor that supports the protocol, to offer good suppor
 
 Features
 --------------
-* As you type reporting of parsing errors
+
+* [textDocument/publishDiagnostics](https://microsoft.github.io/language-server-protocol/specification#textDocument_publishDiagnostics): as you type reporting of Freemarker parsing errors.
 
 Clients
 -------
 This repository only contains the server implementation. Here are some known clients consuming this server:
 
-* [freemarker-lsp4e](https://github.com/angelozerr/freemarker-lsp4e) : an extension for Eclipse
+* [lsp4e-freemarker](https://github.com/angelozerr/lsp4e-freemarker) : an extension for Eclipse.
