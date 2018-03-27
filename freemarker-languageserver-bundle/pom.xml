@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<artifactId>freemarker-languageserver-bundle</artifactId>
+	<packaging>bundle</packaging>
+	<description>
+		OSGi bundle that contains the freemarker-languageserver-core module and also its dependencies.
+		Practical for an embedded LSP server in an Eclipse plugin.
+	</description>
+	
+	<parent>
+		<groupId>org.freemarker</groupId>
+		<artifactId>freemarker-languageserver-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>3.5.0</version>
+				<extensions>true</extensions>
+
+				<configuration>
+					<instructions>
+						<Export-Package>*</Export-Package>
+						<Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+						<Embed-StripGroup>true</Embed-StripGroup>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package></Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker-languageserver-core</artifactId>
+		</dependency>
+	</dependencies>
+</project>
