@@ -27,7 +27,6 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 /**
  * Freemarker language server.
- *
  */
 public class FreemarkerLanguageServer implements LanguageServer {
 
