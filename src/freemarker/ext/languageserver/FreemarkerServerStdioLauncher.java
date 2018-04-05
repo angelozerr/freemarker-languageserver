@@ -10,27 +10,20 @@
  */
 package freemarker.ext.languageserver;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.Future;
-
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
 
-public class FreemarkerLanguageServerLauncher {
-	
-	private FreemarkerLanguageServerLauncher() {
-		//
-	}
+/**
+ * Launcher to start Freemarker language server in stdio
+ *
+ */
+public class FreemarkerServerStdioLauncher {
 
-	/**
-	 * Creates a {@link FreemarkerLanguageServer} and makes it accessible through the JSON RPC protocol defined by the LSP.
-	 */
-	public static Future<?> launch(InputStream in, OutputStream out) {
+	public static void main(String[] args) {
 		FreemarkerLanguageServer server = new FreemarkerLanguageServer();
-		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
+		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in, System.out);
 		server.setClient(launcher.getRemoteProxy());
-		return launcher.startListening();
+		launcher.startListening();
 	}
 }
