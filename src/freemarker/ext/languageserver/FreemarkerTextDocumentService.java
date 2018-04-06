@@ -10,12 +10,11 @@
  */
 package freemarker.ext.languageserver;
 
+import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.CodeActionParams;
@@ -43,16 +42,20 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import freemarker.core.ParseException;
+import freemarker.ext.languageserver.commons.LanguageModelCache;
+import freemarker.ext.languageserver.commons.TextDocuments;
+import freemarker.ext.languageserver.model.IFMDocument;
+import freemarker.ext.languageserver.services.FMLanguageService;
+import freemarker.ext.languageserver.services.IFMLanguageService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -63,12 +66,21 @@ import freemarker.template.Template;
 public class FreemarkerTextDocumentService implements TextDocumentService {
 
 	private final FreemarkerLanguageServer fmLanguageServer;
-	private final Map<String, String> openFMDocuments;
+	private final TextDocuments documents;
+	private final IFMLanguageService languageService;
 	private Configuration fmConfiguration;
+	private LanguageModelCache<IFMDocument> fmDocuments;
 
 	public FreemarkerTextDocumentService(FreemarkerLanguageServer fmLanguageServer) {
 		this.fmLanguageServer = fmLanguageServer;
-		this.openFMDocuments = new HashMap<>();
+		this.languageService = new FMLanguageService();
+		this.documents = new TextDocuments();
+		this.fmDocuments = new LanguageModelCache<IFMDocument>(10, 60,
+				document -> languageService.parseFMDocument(document));
+	}
+
+	private IFMDocument getFMDocument(TextDocumentItem document) {
+		return fmDocuments.get(document);
 	}
 
 	@Override
@@ -109,7 +121,11 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
-		return null;
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			IFMDocument fmDocument = getFMDocument(document);
+			return languageService.findDocumentSymbols(document, fmDocument);
+		});
 	}
 
 	@Override
@@ -149,42 +165,39 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
-		TextDocumentItem textDocument = params.getTextDocument();
-		String uri = textDocument.getUri();
-		List<Diagnostic> diagnostics = validateFMDocument(uri, textDocument.getText());
-		openFMDocuments.put(uri, textDocument.getText());
-		fmLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
+		documents.onDidOpenTextDocument(params);
+		triggerValidation(params.getTextDocument());
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = params.getTextDocument();
-		String uri = versionedTextDocumentIdentifier.getUri();
-		Iterator<TextDocumentContentChangeEvent> textDocumentContentChangeEventIterator = params.getContentChanges()
-				.iterator();
-		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
-		while (textDocumentContentChangeEventIterator.hasNext()) {
-			TextDocumentContentChangeEvent textDocumentContentChangeEvent = textDocumentContentChangeEventIterator
-					.next();
-			String text = textDocumentContentChangeEvent.getText();
-			openFMDocuments.put(uri, text);
-			List<Diagnostic> currentDiagnostics = validateFMDocument(uri, text);
-			diagnostics.addAll(currentDiagnostics);
+		documents.onDidChangeTextDocument(params);
+		TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+		if (document != null) {
+			triggerValidation(document);
 		}
-		fmLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
 	}
 
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
-		String uri = params.getTextDocument().getUri();
+		documents.onDidCloseTextDocument(params);
+		fmDocuments.onDocumentRemoved(params.getTextDocument().getUri());
+		TextDocumentIdentifier document = params.getTextDocument();
+		String uri = document.getUri();
 		fmLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, new ArrayList<Diagnostic>()));
-		openFMDocuments.remove(uri);
+
 	}
 
 	@Override
 	public void didSave(DidSaveTextDocumentParams params) {
 
+	}
+
+	private void triggerValidation(TextDocumentItem document) {
+		String uri = document.getUri();
+		List<Diagnostic> diagnostics = validateFMDocument(uri, document.getText());
+		fmLanguageServer.getLanguageClient().publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics));
 	}
 
 	private List<Diagnostic> validateFMDocument(String xmlDocumentUri, String xmlDocumentContent) {
