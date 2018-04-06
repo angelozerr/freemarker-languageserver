@@ -1,13 +1,13 @@
-package freemarker.ext.languageserver.parser;
+package freemarker.ext.languageserver.internal.parser;
 
-import static freemarker.ext.languageserver.parser.Constants._BNG;
-import static freemarker.ext.languageserver.parser.Constants._DQO;
-import static freemarker.ext.languageserver.parser.Constants._EQS;
-import static freemarker.ext.languageserver.parser.Constants._FSL;
-import static freemarker.ext.languageserver.parser.Constants._LAN;
-import static freemarker.ext.languageserver.parser.Constants._MIN;
-import static freemarker.ext.languageserver.parser.Constants._RAN;
-import static freemarker.ext.languageserver.parser.Constants._SQO;
+import static freemarker.ext.languageserver.internal.parser.Constants._BNG;
+import static freemarker.ext.languageserver.internal.parser.Constants._DQO;
+import static freemarker.ext.languageserver.internal.parser.Constants._EQS;
+import static freemarker.ext.languageserver.internal.parser.Constants._FSL;
+import static freemarker.ext.languageserver.internal.parser.Constants._LAN;
+import static freemarker.ext.languageserver.internal.parser.Constants._MIN;
+import static freemarker.ext.languageserver.internal.parser.Constants._RAN;
+import static freemarker.ext.languageserver.internal.parser.Constants._SQO;
 
 import java.util.regex.Pattern;
 

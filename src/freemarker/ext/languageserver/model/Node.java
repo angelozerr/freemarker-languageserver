@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class Node {
+	
 	public String tag;
 	public boolean closed = false;
 	public Integer endTagStart;

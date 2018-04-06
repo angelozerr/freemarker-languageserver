@@ -1,10 +1,10 @@
-package freemarker.ext.languageserver.parser;
+package freemarker.ext.languageserver.internal.parser;
 
-import static freemarker.ext.languageserver.parser.Constants._CAR;
-import static freemarker.ext.languageserver.parser.Constants._LFD;
-import static freemarker.ext.languageserver.parser.Constants._NWL;
-import static freemarker.ext.languageserver.parser.Constants._TAB;
-import static freemarker.ext.languageserver.parser.Constants._WSP;
+import static freemarker.ext.languageserver.internal.parser.Constants._CAR;
+import static freemarker.ext.languageserver.internal.parser.Constants._LFD;
+import static freemarker.ext.languageserver.internal.parser.Constants._NWL;
+import static freemarker.ext.languageserver.internal.parser.Constants._TAB;
+import static freemarker.ext.languageserver.internal.parser.Constants._WSP;
 
 import java.util.function.Predicate;
 import java.util.regex.Matcher;

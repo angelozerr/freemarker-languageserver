@@ -1,6 +1,7 @@
-package freemarker.ext.languageserver.parser;
+package freemarker.ext.languageserver.internal.parser;
 
 interface Scanner {
+
 	TokenType scan();
 
 	TokenType getTokenType();

@@ -10,19 +10,13 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentItem;
 
-import freemarker.ext.languageserver.model.IFMDocument;
+import freemarker.ext.languageserver.model.FMDocument;
 import freemarker.ext.languageserver.model.Node;
-import freemarker.ext.languageserver.parser.FMParser;
 
 public class FMLanguageService implements IFMLanguageService {
 
 	@Override
-	public IFMDocument parseFMDocument(TextDocumentItem document) {
-		return FMParser.parse(document.getText());
-	}
-
-	@Override
-	public List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, IFMDocument fmDocument) {
+	public List<SymbolInformation> findDocumentSymbols(TextDocumentItem document, FMDocument fmDocument) {
 		List<SymbolInformation> symbols = new ArrayList<>();
 		fmDocument.getRoots().forEach(node -> {
 			provideFileSymbolsInternal(document, node, "", symbols);
@@ -37,7 +31,7 @@ public class FMLanguageService implements IFMLanguageService {
 		Position end = null;
 		Range range = new Range(start, end);
 		Location location = new Location(document.getUri(), range);
-				
+
 //				
 //				Location.create(document.getUri(),
 //				Range.create(document.positionAt(node.start), document.positionAt(node.end)));

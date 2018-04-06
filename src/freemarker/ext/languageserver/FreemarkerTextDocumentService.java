@@ -53,7 +53,8 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import freemarker.core.ParseException;
 import freemarker.ext.languageserver.commons.LanguageModelCache;
 import freemarker.ext.languageserver.commons.TextDocuments;
-import freemarker.ext.languageserver.model.IFMDocument;
+import freemarker.ext.languageserver.model.FMDocument;
+import freemarker.ext.languageserver.model.IFMParser;
 import freemarker.ext.languageserver.services.FMLanguageService;
 import freemarker.ext.languageserver.services.IFMLanguageService;
 import freemarker.template.Configuration;
@@ -69,17 +70,18 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 	private final TextDocuments documents;
 	private final IFMLanguageService languageService;
 	private Configuration fmConfiguration;
-	private LanguageModelCache<IFMDocument> fmDocuments;
+	private LanguageModelCache<FMDocument> fmDocuments;
 
 	public FreemarkerTextDocumentService(FreemarkerLanguageServer fmLanguageServer) {
 		this.fmLanguageServer = fmLanguageServer;
 		this.languageService = new FMLanguageService();
 		this.documents = new TextDocuments();
-		this.fmDocuments = new LanguageModelCache<IFMDocument>(10, 60,
-				document -> languageService.parseFMDocument(document));
+		// TODO: customize the FM Parser
+		IFMParser parser = IFMParser.getDefault();
+		this.fmDocuments = new LanguageModelCache<FMDocument>(10, 60, document -> parser.parse(document.getText()));
 	}
 
-	private IFMDocument getFMDocument(TextDocumentItem document) {
+	private FMDocument getFMDocument(TextDocumentItem document) {
 		return fmDocuments.get(document);
 	}
 
@@ -123,7 +125,7 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
 		return computeAsync((monitor) -> {
 			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
-			IFMDocument fmDocument = getFMDocument(document);
+			FMDocument fmDocument = getFMDocument(document);
 			return languageService.findDocumentSymbols(document, fmDocument);
 		});
 	}

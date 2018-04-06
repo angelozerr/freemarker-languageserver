@@ -1,4 +1,4 @@
-package freemarker.ext.languageserver.parser;
+package freemarker.ext.languageserver.internal.parser;
 
 public enum TokenType {
 
