@@ -29,7 +29,7 @@
           <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
-              <mainClass>freemarker.ext.languageserver.FreemarkerServerStdioLauncher</mainClass>
+              <mainClass>freemarker.ext.languageserver.FreemarkerServerLauncher</mainClass>
             </manifest>
           </archive>
         </configuration>
