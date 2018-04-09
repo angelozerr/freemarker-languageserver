@@ -7,14 +7,14 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class Node {
-	
+
 	public String tag;
 	public boolean closed = false;
 	public Integer endTagStart;
 
 	public Map<String, String> attributes;
 	public List<Node> children;
-	public int start;
+	public final int start;
 	public int end;
 	public Node parent;
 
@@ -31,7 +31,52 @@ public class Node {
 		this.end = end;
 		this.children = children;
 		this.parent = parent;
+	}
 
+	@Override
+	public String toString() {
+		return toString(0);
+	}
+
+	private String toString(int indent) {
+		StringBuilder result = new StringBuilder("");
+		for (int i = 0; i < indent; i++) {
+			result.append("\t");
+		}
+		result.append("{start: ");
+		result.append(start);
+		result.append(", end: ");
+		result.append(end);
+		result.append(", tag: ");
+		result.append(tag);
+		if (children != null && children.size() > 0) {
+			result.append(", \n");
+			for (int i = 0; i < indent + 1; i++) {
+				result.append("\t");
+			}
+			result.append("children:[");
+			for (int i = 0; i < children.size(); i++) {
+				Node node = children.get(i);
+				result.append("\n");
+				result.append(node.toString(indent + 2));
+				if (i < children.size() - 1) {
+					result.append(",");
+				}
+			}
+			result.append("\n");
+			for (int i = 0; i < indent + 1; i++) {
+				result.append("\t");
+			}
+			result.append("]");
+			result.append("\n");
+			for (int i = 0; i < indent; i++) {
+				result.append("\t");
+			}
+			result.append("}");
+		} else {
+			result.append("}");
+		}
+		return result.toString();
 	}
 
 	public boolean isSameTag(String tagInLowerCase) {

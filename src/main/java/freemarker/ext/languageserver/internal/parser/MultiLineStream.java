@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Angelo ZERR, Daniel Dekany.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package freemarker.ext.languageserver.internal.parser;
 
 import static freemarker.ext.languageserver.internal.parser.Constants._CAR;
@@ -10,12 +20,17 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Multi line stream.
+ *
+ */
 class MultiLineStream {
 
-	private String source;
-	private int len;
+	private final String source;
+	private final int len;
 	private int position;
-
+	private int lastLinePosition;
+	
 	public MultiLineStream(String source, int position) {
 		this.source = source;
 		this.len = source.length();
@@ -47,26 +62,29 @@ class MultiLineStream {
 	}
 
 	public void goToEnd() {
-		this.position = this.source.length();
+		this.position = len;
 	}
 
-	public int nextChar() {
+	/*public int nextChar() {
 		// return this.source.codePointAt(this.position++) || 0;
 		int next = this.source.codePointAt(this.position++);
 		return next >= 0 ? next : 0;
-	}
+	}*/
 
 	public int peekChar() {
 		return peekChar(0);
 	}
 
-	public int peekChar(int n) {
+	public int peekChar(int n) {		
 		int c = this.source.codePointAt(this.position + n);
+		if (c == _NWL) {
+			new LineInfo(lastLinePosition, this.position + n);
+		}
 		return c >= 0 ? c : 0;
 	}
 
 	public boolean advanceIfChar(int ch) {
-		if (ch == this.source.codePointAt(this.position)) {
+		if (ch == peekChar()) {
 			this.position++;
 			return true;
 		}
@@ -75,11 +93,11 @@ class MultiLineStream {
 
 	public boolean advanceIfChars(int... ch) {
 		int i;
-		if (this.position + ch.length > this.source.length()) {
+		if (this.position + ch.length > this.len) {
 			return false;
 		}
 		for (i = 0; i < ch.length; i++) {
-			if (this.source.codePointAt(this.position + i) != ch[i]) {
+			if (peekChar(i) != ch[i]) {
 				return false;
 			}
 		}
@@ -108,8 +126,8 @@ class MultiLineStream {
 	}
 
 	public boolean advanceUntilChar(int ch) {
-		while (this.position < this.source.length()) {
-			if (this.source.codePointAt(this.position) == ch) {
+		while (this.position < this.len) {
+			if (peekChar() == ch) {
 				return true;
 			}
 			this.advance(1);
@@ -118,9 +136,9 @@ class MultiLineStream {
 	}
 
 	public boolean advanceUntilChars(int... ch) {
-		while (this.position + ch.length <= this.source.length()) {
+		while (this.position + ch.length <= this.len) {
 			int i = 0;
-			for (; i < ch.length && this.source.codePointAt(this.position + i) == ch[i]; i++) {
+			for (; i < ch.length && peekChar(i) == ch[i]; i++) {
 			}
 			if (i == ch.length) {
 				return true;
@@ -140,7 +158,7 @@ class MultiLineStream {
 
 	public int advanceWhileChar(Predicate<Integer> condition) {
 		int posNow = this.position;
-		while (this.position < this.len && condition.test(this.source.codePointAt(this.position))) {
+		while (this.position < this.len && condition.test(peekChar())) {
 			this.position++;
 		}
 		return this.position - posNow;

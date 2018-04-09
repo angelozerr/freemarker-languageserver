@@ -70,9 +70,8 @@ public class FMScanner implements Scanner {
 		return token;
 	}
 
-	private void log(String string) {
-		// TODO Auto-generated method stub
-
+	private void log(String message) {
+		System.err.println(message);
 	}
 
 	TokenType internalScan() {
