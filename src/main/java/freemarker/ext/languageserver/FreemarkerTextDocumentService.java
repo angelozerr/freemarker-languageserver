@@ -117,8 +117,12 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
-		return null;
+	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams params) {
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			FMDocument fmDocument = getFMDocument(document);
+			return languageService.findDocumentHighlights(document, params.getPosition(), fmDocument);
+		});
 	}
 
 	@Override

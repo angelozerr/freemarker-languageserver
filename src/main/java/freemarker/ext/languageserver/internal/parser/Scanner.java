@@ -1,6 +1,6 @@
 package freemarker.ext.languageserver.internal.parser;
 
-interface Scanner {
+public interface Scanner {
 
 	TokenType scan();
 

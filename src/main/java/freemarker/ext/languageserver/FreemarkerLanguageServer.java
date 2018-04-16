@@ -49,7 +49,8 @@ public class FreemarkerLanguageServer implements LanguageServer {
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		ServerCapabilities capabilities = new ServerCapabilities();
 		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
-		//capabilities.setDocumentSymbolProvider(true);
+		capabilities.setDocumentSymbolProvider(true);
+		capabilities.setDocumentHighlightProvider(true);
 		InitializeResult result = new InitializeResult(capabilities);
 		return CompletableFuture.completedFuture(result);
 	}

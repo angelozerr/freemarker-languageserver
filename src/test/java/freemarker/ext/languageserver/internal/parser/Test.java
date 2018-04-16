@@ -8,6 +8,12 @@ public class Test {
 
 	public static void main(String[] args) {
 		IFMParser parser = DefaultFMParser.getInstance();
+		FMDocument document = parser.parse("<");
+		System.err.println(document);
+	}
+	
+	public static void main2(String[] args) {
+		IFMParser parser = DefaultFMParser.getInstance();
 		FMDocument document = parser.parse("<r><a>xx\nx</a><b>yyy</b></r>");
 		System.err.println(document);
 	}

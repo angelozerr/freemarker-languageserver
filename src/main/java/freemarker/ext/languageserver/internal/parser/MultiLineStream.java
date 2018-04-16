@@ -29,8 +29,7 @@ class MultiLineStream {
 	private final String source;
 	private final int len;
 	private int position;
-	private int lastLinePosition;
-	
+
 	public MultiLineStream(String source, int position) {
 		this.source = source;
 		this.len = source.length();
@@ -76,11 +75,11 @@ class MultiLineStream {
 	}
 
 	public int peekChar(int n) {		
-		int c = this.source.codePointAt(this.position + n);
-		if (c == _NWL) {
-			new LineInfo(lastLinePosition, this.position + n);
+		int pos = this.position + n;
+		if (pos >= len ) {
+			return -1;
 		}
-		return c >= 0 ? c : 0;
+		return this.source.codePointAt(pos);
 	}
 
 	public boolean advanceIfChar(int ch) {

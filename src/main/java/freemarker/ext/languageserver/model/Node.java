@@ -81,7 +81,7 @@ public class Node {
 
 	public boolean isSameTag(String tagInLowerCase) {
 		return this.tag != null && tagInLowerCase != null && this.tag.length() == tagInLowerCase.length()
-				&& this.tag.toLowerCase() == tagInLowerCase;
+				&& this.tag.toLowerCase().equals(tagInLowerCase);
 	}
 
 	public Node firstChild() {

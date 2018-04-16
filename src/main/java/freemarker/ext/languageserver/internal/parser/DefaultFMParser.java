@@ -19,6 +19,7 @@ public class DefaultFMParser implements IFMParser {
 		return INSTANCE;
 	}
 
+	@Override
 	public FMDocument parse(String text) {
 		Scanner scanner = FMScanner.createScanner(text);
 		FMDocument fmDocument = new FMDocument(text);
