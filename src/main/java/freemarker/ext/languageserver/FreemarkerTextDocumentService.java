@@ -55,8 +55,7 @@ import freemarker.ext.languageserver.commons.LanguageModelCache;
 import freemarker.ext.languageserver.commons.TextDocuments;
 import freemarker.ext.languageserver.model.FMDocument;
 import freemarker.ext.languageserver.model.IFMParser;
-import freemarker.ext.languageserver.services.FMLanguageService;
-import freemarker.ext.languageserver.services.IFMLanguageService;
+import freemarker.ext.languageserver.services.FreemarkerLanguageService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -68,13 +67,13 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 
 	private final FreemarkerLanguageServer fmLanguageServer;
 	private final TextDocuments documents;
-	private final IFMLanguageService languageService;
+	private final FreemarkerLanguageService languageService;
 	private Configuration fmConfiguration;
 	private LanguageModelCache<FMDocument> fmDocuments;
 
 	public FreemarkerTextDocumentService(FreemarkerLanguageServer fmLanguageServer) {
 		this.fmLanguageServer = fmLanguageServer;
-		this.languageService = new FMLanguageService();
+		this.languageService = new FreemarkerLanguageService();
 		this.documents = new TextDocuments();
 		// TODO: customize the FM Parser
 		IFMParser parser = IFMParser.getDefault();
@@ -87,8 +86,13 @@ public class FreemarkerTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
-			TextDocumentPositionParams position) {
-		return null;
+			TextDocumentPositionParams params) {
+		return computeAsync((monitor) -> {
+			TextDocumentItem document = documents.get(params.getTextDocument().getUri());
+			FMDocument fmDocument = getFMDocument(document);
+			CompletionList list = languageService.doComplete(document, params.getPosition(), fmDocument, null);
+			return Either.forRight(list);
+		});
 	}
 
 	@Override
